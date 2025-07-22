@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Data Structures - DSA Universe</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .data-structure-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: var(--spacing-xl);
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            box-shadow: var(--shadow-md);
+        }
+
+        .tab-button {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all var(--animation-fast) ease;
+            font-weight: 500;
+        }
+
+        .tab-button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .structure-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .structure-visualization {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            margin: var(--spacing-xl) 0;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .node {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: bold;
+            position: relative;
+            transition: all var(--animation-normal) ease;
+        }
+
+        .node.highlight {
+            background: var(--accent-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(240, 147, 251, 0.5);
+        }
+
+        .node.new {
+            background: var(--success-color);
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        .arrow {
+            width: 30px;
+            height: 2px;
+            background: var(--text-secondary);
+            position: relative;
+            margin: 0 var(--spacing-sm);
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border: 4px solid transparent;
+            border-left-color: var(--text-secondary);
+        }
+
+        .stack-container {
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+
+        .queue-container {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .linked-list-container {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .operation-result {
+            text-align: center;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin-top: var(--spacing-md);
+            font-weight: 500;
+        }
+
+        .result-success {
+            background: rgba(74, 222, 128, 0.1);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .result-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="module-container">
+        <div class="container">
+            <a href="../index.html" class="back-button">← Back to Dashboard</a>
+            
+            <div class="module-header">
+                <h1 class="module-title">📚 Linear Data Structures</h1>
+                <p class="module-description">
+                    Explore Stack (LIFO), Queue (FIFO), and Linked List operations with interactive visualizations.
+                </p>
+            </div>
+
+            <div class="data-structure-tabs">
+                <button class="tab-button active" data-tab="stack">Stack</button>
+                <button class="tab-button" data-tab="queue">Queue</button>
+                <button class="tab-button" data-tab="linked-list">Linked List</button>
+            </div>
+
+            <!-- Stack Tab -->
+            <div class="tab-content active" id="stack-tab">
+                <div class="controls-panel">
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label class="control-label">Value to Push</label>
+                            <input type="number" id="stackValue" class="control-input" value="1" min="1" max="99">
+                        </div>
+                        <div class="control-group">
+                            <button id="stackPush" class="btn btn-primary">Push</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="stackPop" class="btn btn-secondary">Pop</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="stackPeek" class="btn btn-warning">Peek</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="stackClear" class="btn btn-error">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="structure-container">
+                    <h3 class="visualization-title">Stack Visualization (LIFO - Last In, First Out)</h3>
+                    <div class="structure-visualization stack-container" id="stackVisualization"></div>
+                    <div id="stackResult" class="operation-result" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Queue Tab -->
+            <div class="tab-content" id="queue-tab">
+                <div class="controls-panel">
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label class="control-label">Value to Enqueue</label>
+                            <input type="number" id="queueValue" class="control-input" value="1" min="1" max="99">
+                        </div>
+                        <div class="control-group">
+                            <button id="queueEnqueue" class="btn btn-primary">Enqueue</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="queueDequeue" class="btn btn-secondary">Dequeue</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="queueFront" class="btn btn-warning">Front</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="queueClear" class="btn btn-error">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="structure-container">
+                    <h3 class="visualization-title">Queue Visualization (FIFO - First In, First Out)</h3>
+                    <div class="structure-visualization queue-container" id="queueVisualization"></div>
+                    <div id="queueResult" class="operation-result" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Linked List Tab -->
+            <div class="tab-content" id="linked-list-tab">
+                <div class="controls-panel">
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label class="control-label">Value</label>
+                            <input type="number" id="listValue" class="control-input" value="1" min="1" max="99">
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Position</label>
+                            <input type="number" id="listPosition" class="control-input" value="0" min="0">
+                        </div>
+                        <div class="control-group">
+                            <button id="listInsert" class="btn btn-primary">Insert</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="listDelete" class="btn btn-secondary">Delete</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="listSearch" class="btn btn-warning">Search</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="listClear" class="btn btn-error">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="structure-container">
+                    <h3 class="visualization-title">Linked List Visualization</h3>
+                    <div class="structure-visualization linked-list-container" id="listVisualization"></div>
+                    <div id="listResult" class="operation-result" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/data-structures.js"></script>
+</body>
+</html>

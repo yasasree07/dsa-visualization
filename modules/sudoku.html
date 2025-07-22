@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver - DSA Universe</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .sudoku-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 1px;
+            background: var(--text-primary);
+            border: 3px solid var(--text-primary);
+            border-radius: 8px;
+            margin: var(--spacing-lg) auto;
+            max-width: 450px;
+            aspect-ratio: 1;
+        }
+
+        .sudoku-cell {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-primary);
+            transition: all var(--animation-normal) ease;
+            cursor: pointer;
+            aspect-ratio: 1;
+        }
+
+        .sudoku-cell.given {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 900;
+        }
+
+        .sudoku-cell.solving {
+            background: var(--warning-color);
+            color: white;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .sudoku-cell.solved {
+            background: var(--success-color);
+            color: white;
+            animation: placeNumber 0.5s ease-in-out;
+        }
+
+        .sudoku-cell.backtrack {
+            background: var(--error-color);
+            color: white;
+            animation: removeNumber 0.3s ease-in-out;
+        }
+
+        .sudoku-cell.conflict {
+            background: var(--error-color);
+            color: white;
+        }
+
+        /* 3x3 box borders */
+        .sudoku-cell:nth-child(3n) {
+            border-right: 2px solid var(--text-primary);
+        }
+
+        .sudoku-cell:nth-child(n+19):nth-child(-n+27),
+        .sudoku-cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 2px solid var(--text-primary);
+        }
+
+        .solver-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .info-card {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .info-value {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .info-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .puzzle-presets {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .preset-button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all var(--animation-fast) ease;
+            font-size: var(--font-size-sm);
+        }
+
+        .preset-button:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes placeNumber {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        @keyframes removeNumber {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.8); }
+            100% { transform: scale(1); }
+        }
+
+        .solving-indicator {
+            text-align: center;
+            padding: var(--spacing-md);
+            background: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-md);
+            display: none;
+            animation: pulse 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="module-container">
+        <div class="container">
+            <a href="../index.html" class="back-button">← Back to Dashboard</a>
+            
+            <div class="module-header">
+                <h1 class="module-title">🧩 Sudoku Solver</h1>
+                <p class="module-description">
+                    Watch the backtracking algorithm solve Sudoku puzzles using constraint satisfaction techniques.
+                </p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label class="control-label">Animation Speed</label>
+                        <input type="range" id="animationSpeed" class="control-input" min="50" max="500" value="200">
+                    </div>
+                    <div class="control-group">
+                        <button id="solveSudoku" class="btn btn-primary">Solve Sudoku</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="clearGrid" class="btn btn-secondary">Clear Grid</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="validateSudoku" class="btn btn-warning">Validate</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="puzzle-presets">
+                <button class="preset-button" data-difficulty="easy">Easy Puzzle</button>
+                <button class="preset-button" data-difficulty="medium">Medium Puzzle</button>
+                <button class="preset-button" data-difficulty="hard">Hard Puzzle</button>
+                <button class="preset-button" data-difficulty="expert">Expert Puzzle</button>
+            </div>
+
+            <div id="solvingIndicator" class="solving-indicator">
+                🧠 Solving Sudoku using backtracking algorithm...
+            </div>
+
+            <div class="solver-info">
+                <div class="info-card">
+                    <div class="info-value" id="attempts">0</div>
+                    <div class="info-label">Attempts</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-value" id="backtracks">0</div>
+                    <div class="info-label">Backtracks</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-value" id="filledCells">0</div>
+                    <div class="info-label">Filled Cells</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-value" id="solveTime">0ms</div>
+                    <div class="info-label">Solve Time</div>
+                </div>
+            </div>
+
+            <div class="sudoku-container">
+                <h3 class="visualization-title">Sudoku Grid</h3>
+                <div class="sudoku-grid" id="sudokuGrid"></div>
+            </div>
+
+            <div id="sudokuResult" class="operation-result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="../js/sudoku.js"></script>
+</body>
+</html>

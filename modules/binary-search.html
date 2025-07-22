@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Search - DSA Universe</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .search-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .array-visualization {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin: var(--spacing-xl) 0;
+            min-height: 80px;
+            align-items: center;
+        }
+
+        .array-element {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: var(--font-size-base);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .array-element.target {
+            background: var(--error-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .array-element.low {
+            background: var(--warning-color);
+            transform: scale(1.05);
+        }
+
+        .array-element.high {
+            background: var(--warning-color);
+            transform: scale(1.05);
+        }
+
+        .array-element.mid {
+            background: var(--accent-color);
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(240, 147, 251, 0.5);
+        }
+
+        .array-element.found {
+            background: var(--success-color);
+            transform: scale(1.3);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        .array-element.eliminated {
+            background: var(--text-light);
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+
+        .array-element::before {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .array-element.low::before {
+            border-bottom-color: var(--warning-color);
+            opacity: 1;
+        }
+
+        .array-element.high::before {
+            border-bottom-color: var(--warning-color);
+            opacity: 1;
+        }
+
+        .array-element.mid::before {
+            border-bottom-color: var(--accent-color);
+            opacity: 1;
+        }
+
+        .search-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .info-card {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .info-value {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .info-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .step-by-step {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-item {
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .step-item.active {
+            background: var(--primary-color);
+            color: white;
+            opacity: 1;
+            transform: translateX(10px);
+        }
+
+        .step-item.completed {
+            background: var(--success-color);
+            color: white;
+            opacity: 1;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) scale(1.3); }
+            40% { transform: translateY(-10px) scale(1.3); }
+            60% { transform: translateY(-5px) scale(1.3); }
+        }
+
+        .result-message {
+            text-align: center;
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-xl);
+            font-size: var(--font-size-lg);
+            font-weight: 500;
+        }
+
+        .result-success {
+            background: rgba(74, 222, 128, 0.1);
+            color: var(--success-color);
+            border: 2px solid var(--success-color);
+        }
+
+        .result-not-found {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 2px solid var(--error-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="module-container">
+        <div class="container">
+            <a href="../index.html" class="back-button">← Back to Dashboard</a>
+            
+            <div class="module-header">
+                <h1 class="module-title">🎯 Binary Search</h1>
+                <p class="module-description">
+                    Visualize the efficient binary search algorithm that finds elements in O(log n) time by repeatedly dividing the search space in half.
+                </p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label class="control-label">Array Size</label>
+                        <input type="range" id="arraySize" class="control-input" min="5" max="20" value="10">
+                        <span id="arraySizeValue">10</span>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Target Value</label>
+                        <input type="number" id="targetValue" class="control-input" min="1" max="100" value="50">
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Animation Speed</label>
+                        <input type="range" id="speed" class="control-input" min="500" max="2000" value="1000">
+                    </div>
+                    <div class="control-group">
+                        <button id="generateArray" class="btn btn-secondary">Generate New Array</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="startSearch" class="btn btn-primary">Start Search</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="reset" class="btn btn-secondary">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--primary-color);"></div>
+                    <span>Normal</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--warning-color);"></div>
+                    <span>Low/High</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--accent-color);"></div>
+                    <span>Mid</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--success-color);"></div>
+                    <span>Found</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--text-light);"></div>
+                    <span>Eliminated</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--error-color);"></div>
+                    <span>Target</span>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <div class="array-visualization" id="arrayVisualization"></div>
+                
+                <div id="resultMessage" class="result-message" style="display: none;"></div>
+                
+                <div class="search-info">
+                    <div class="info-card">
+                        <div class="info-value" id="currentStep">0</div>
+                        <div class="info-label">Current Step</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value" id="comparisons">0</div>
+                        <div class="info-label">Comparisons</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value" id="lowPointer">-</div>
+                        <div class="info-label">Low Pointer</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value" id="highPointer">-</div>
+                        <div class="info-label">High Pointer</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-value" id="midPointer">-</div>
+                        <div class="info-label">Mid Pointer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-by-step">
+                <h3 class="visualization-title">Step-by-Step Process</h3>
+                <ol class="step-list" id="stepList"></ol>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/binary-search.js"></script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Complexity - DSA Universe</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .complexity-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-lg) 0;
+            overflow: hidden;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .complexity-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all var(--animation-fast) ease;
+        }
+
+        .legend-item:hover {
+            background: var(--border-color);
+        }
+
+        .legend-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .complexity-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .info-card {
+            background: var(--bg-secondary);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+        }
+
+        .info-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+        }
+
+        .info-description {
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .info-examples {
+            font-size: var(--font-size-sm);
+            color: var(--text-light);
+        }
+
+        .simulation-controls {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .input-size-display {
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .input-size-value {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .operations-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+
+        .operation-card {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .operation-value {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .operation-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="module-container">
+        <div class="container">
+            <a href="../index.html" class="back-button">← Back to Dashboard</a>
+            
+            <div class="module-header">
+                <h1 class="module-title">📈 Time Complexity</h1>
+                <p class="module-description">
+                    Visualize how different algorithms scale with input size using Big O notation.
+                </p>
+            </div>
+
+            <div class="controls-panel">
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label class="control-label">Input Size (n)</label>
+                        <input type="range" id="inputSize" class="control-input" min="1" max="100" value="10">
+                    </div>
+                    <div class="control-group">
+                        <button id="animateGrowth" class="btn btn-primary">Animate Growth</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="resetChart" class="btn btn-secondary">Reset Chart</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-size-display">
+                <div class="input-size-value" id="inputSizeValue">10</div>
+                <div>Input Size (n)</div>
+            </div>
+
+            <div class="complexity-legend">
+                <div class="legend-item active" data-complexity="constant">
+                    <div class="legend-color" style="background: #10b981;"></div>
+                    <span>O(1) - Constant</span>
+                </div>
+                <div class="legend-item active" data-complexity="logarithmic">
+                    <div class="legend-color" style="background: #3b82f6;"></div>
+                    <span>O(log n) - Logarithmic</span>
+                </div>
+                <div class="legend-item active" data-complexity="linear">
+                    <div class="legend-color" style="background: #f59e0b;"></div>
+                    <span>O(n) - Linear</span>
+                </div>
+                <div class="legend-item active" data-complexity="linearithmic">
+                    <div class="legend-color" style="background: #8b5cf6;"></div>
+                    <span>O(n log n) - Linearithmic</span>
+                </div>
+                <div class="legend-item active" data-complexity="quadratic">
+                    <div class="legend-color" style="background: #ef4444;"></div>
+                    <span>O(n²) - Quadratic</span>
+                </div>
+                <div class="legend-item active" data-complexity="exponential">
+                    <div class="legend-color" style="background: #dc2626;"></div>
+                    <span>O(2ⁿ) - Exponential</span>
+                </div>
+            </div>
+
+            <div class="complexity-container">
+                <h3 class="visualization-title">Time Complexity Growth Chart</h3>
+                <div class="chart-container">
+                    <canvas class="chart-canvas" id="complexityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="operations-display" id="operationsDisplay"></div>
+
+            <div class="complexity-info">
+                <div class="info-card">
+                    <div class="info-title">O(1) - Constant Time</div>
+                    <div class="info-description">
+                        Execution time remains constant regardless of input size.
+                    </div>
+                    <div class="info-examples">
+                        Examples: Array access, Hash table lookup, Stack push/pop
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">O(log n) - Logarithmic Time</div>
+                    <div class="info-description">
+                        Execution time grows logarithmically with input size.
+                    </div>
+                    <div class="info-examples">
+                        Examples: Binary search, Binary tree operations
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">O(n) - Linear Time</div>
+                    <div class="info-description">
+                        Execution time grows linearly with input size.
+                    </div>
+                    <div class="info-examples">
+                        Examples: Linear search, Array traversal, Simple loops
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">O(n log n) - Linearithmic Time</div>
+                    <div class="info-description">
+                        Common in efficient sorting algorithms.
+                    </div>
+                    <div class="info-examples">
+                        Examples: Merge sort, Heap sort, Quick sort (average)
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">O(n²) - Quadratic Time</div>
+                    <div class="info-description">
+                        Execution time grows quadratically with input size.
+                    </div>
+                    <div class="info-examples">
+                        Examples: Bubble sort, Insertion sort, Nested loops
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">O(2ⁿ) - Exponential Time</div>
+                    <div class="info-description">
+                        Execution time doubles with each additional input.
+                    </div>
+                    <div class="info-examples">
+                        Examples: Recursive Fibonacci, Subset generation, Brute force
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/complexity.js"></script>
+</body>
+</html>

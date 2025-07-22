@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Scheduling - DSA Universe</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .scheduling-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .job-input {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .job-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--spacing-md);
+            align-items: end;
+        }
+
+        .jobs-list {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .job-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: white;
+            border-radius: 6px;
+            margin-bottom: var(--spacing-sm);
+            transition: all var(--animation-fast) ease;
+        }
+
+        .job-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .job-item.scheduled {
+            background: var(--success-color);
+            color: white;
+            transform: translateX(10px);
+        }
+
+        .job-item.current {
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .job-info {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+
+        .job-name {
+            font-weight: 600;
+        }
+
+        .job-details {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .job-item.scheduled .job-details,
+        .job-item.current .job-details {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .delete-job {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .timeline {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            overflow-x: auto;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .timeline-visualization {
+            position: relative;
+            height: 100px;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .timeline-job {
+            position: absolute;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: var(--font-size-sm);
+            transition: all var(--animation-normal) ease;
+            border-right: 2px solid white;
+        }
+
+        .algorithm-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: var(--spacing-xl);
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            box-shadow: var(--shadow-md);
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all var(--animation-fast) ease;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .tab-button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .scheduling-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .algorithm-description {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="module-container">
+        <div class="container">
+            <a href="../index.html" class="back-button">← Back to Dashboard</a>
+            
+            <div class="module-header">
+                <h1 class="module-title">⏰ Job Scheduling</h1>
+                <p class="module-description">
+                    Optimize task scheduling using greedy algorithms: Shortest Job First, Earliest Deadline First, and more.
+                </p>
+            </div>
+
+            <div class="algorithm-tabs">
+                <button class="tab-button active" data-algorithm="sjf">Shortest Job First</button>
+                <button class="tab-button" data-algorithm="edf">Earliest Deadline First</button>
+                <button class="tab-button" data-algorithm="priority">Priority Scheduling</button>
+                <button class="tab-button" data-algorithm="fcfs">First Come First Serve</button>
+            </div>
+
+            <div id="algorithmDescription" class="algorithm-description">
+                <strong>Shortest Job First (SJF):</strong> Schedules jobs in order of increasing execution time to minimize average waiting time.
+            </div>
+
+            <div class="job-input">
+                <h3 class="visualization-title">Add New Job</h3>
+                <div class="job-form">
+                    <div class="control-group">
+                        <label class="control-label">Job Name</label>
+                        <input type="text" id="jobName" class="control-input" placeholder="Job A">
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Duration (ms)</label>
+                        <input type="number" id="jobDuration" class="control-input" min="100" max="5000" value="1000">
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Deadline (ms)</label>
+                        <input type="number" id="jobDeadline" class="control-input" min="500" max="10000" value="3000">
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Priority</label>
+                        <input type="number" id="jobPriority" class="control-input" min="1" max="10" value="5">
+                    </div>
+                    <div class="control-group">
+                        <button id="addJob" class="btn btn-primary">Add Job</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <button id="scheduleJobs" class="btn btn-primary">Schedule Jobs</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="loadSampleJobs" class="btn btn-secondary">Load Sample Jobs</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="clearJobs" class="btn btn-error">Clear All Jobs</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scheduling-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalJobs">0</div>
+                    <div class="stat-label">Total Jobs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTime">0ms</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgWaitTime">0ms</div>
+                    <div class="stat-label">Avg Wait Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="missedDeadlines">0</div>
+                    <div class="stat-label">Missed Deadlines</div>
+                </div>
+            </div>
+
+            <div class="scheduling-container">
+                <h3 class="visualization-title">Job Queue</h3>
+                <div class="jobs-list" id="jobsList">
+                    <div style="text-align: center; color: var(--text-secondary); font-style: italic;">
+                        No jobs added yet
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-header">
+                    <h3 class="visualization-title">Execution Timeline</h3>
+                    <div id="timelineScale">Scale: 1px = 10ms</div>
+                </div>
+                <div class="timeline-visualization" id="timelineVisualization">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-secondary); font-style: italic;">
+                        Schedule jobs to see timeline
+                    </div>
+                </div>
+            </div>
+
+            <div id="schedulingResult" class="operation-result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="../js/job-scheduling.js"></script>
+</body>
+</html>
