@@ -8,7 +8,7 @@ This project helps learners understand DSA concepts through step-by-step animati
 
  🚀 Live Demo
 
-[Click here to open the live site]  
+ https://yasasree07.github.io/dsa-visualization/  
 
 
 ## 📚 Features
